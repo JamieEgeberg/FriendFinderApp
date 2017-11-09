@@ -87,12 +87,13 @@ export default class App extends React.Component {
           </View>
         </Modal>
         <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            activeOpacity={0.4}
-            onPress={() => this.setModalVisible(true)}
-            style={styles.button}>
-            <Text style={styles.buttonText}>Login</Text>
-          </TouchableOpacity>
+          {!this.state.modalVisible &&
+            <TouchableOpacity
+              activeOpacity={0.4}
+              onPress={() => this.setModalVisible(true)}
+              style={styles.button}>
+              <Text style={styles.buttonText}>Login</Text>
+            </TouchableOpacity>}
         </View>
       </View >
     );
