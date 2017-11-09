@@ -2,7 +2,7 @@ import React from 'react';
 import {
   StyleSheet, Modal, View, TouchableOpacity, TouchableHighlight, Text, Dimensions, TextInput
 } from 'react-native';
-import { MapView } from 'expo';
+import { MapView, Constants, Location, Permissions } from 'expo';
 
 const { width, height } = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
@@ -19,7 +19,8 @@ export default class App extends React.Component {
       markers: [],
       modalVisible: false,
       username: "",
-      distance: ""
+      distance: "",
+      coords: [],
     };
   }
 
@@ -43,6 +44,46 @@ export default class App extends React.Component {
     this.setState({ region });
   }
 
+  getLocationAsync = async () => {
+    let { status } = await Permissions.askAsync(Permissions.LOCATION);
+    if (status !== 'granted') {
+      this.setState({
+        errorMessage: 'Permission to access location was denied',
+      });
+    }
+
+    let location = await Location.getCurrentPositionAsync({ enableHighAccuracy: true });
+    let coords = [location.coords.latitude, location.coords.longitude];
+    this.setState({ coords });
+  };
+
+  modalLoginBtnOnPress = async () => {
+    this.setModalVisible(false);
+    const bl = await this.getLocationAsync();
+    const data={
+      userName:this.state.username,
+      loc:{
+        type: "Point",
+        coordinates:this.state.coords
+      }
+    }
+    fetch(`${process.env.server_uri}/api/friends/register/${this.state.distance}`,
+    {
+        method: "POST",
+        body: data
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        const markers = responseJson;
+        this.setState({
+          markers
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
   render() {
     return (
       <View style={styles.container}>
@@ -53,9 +94,9 @@ export default class App extends React.Component {
           customMapStyle={MapStyle.styles} >
           {this.state.markers.map(marker => (
             <MapView.Marker
-              coordinate={marker.latlng}
-              title={marker.title}
-              description={marker.description}
+              coordinate={marker.loc.coordinates}
+              title={marker.userName}
+              description={marker.userName}
             />
           ))}
         </MapView>
@@ -79,7 +120,7 @@ export default class App extends React.Component {
             <View style={{ alignItems: 'center' }}>
               <TouchableOpacity
                 activeOpacity={0.4}
-                onPress={() => this.setModalVisible(false)}
+                onPress={this.modalLoginBtnOnPress}
                 style={styles.button}>
                 <Text style={styles.buttonText}>Login</Text>
               </TouchableOpacity>
