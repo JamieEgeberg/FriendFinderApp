@@ -171,6 +171,9 @@ export default class App extends React.Component {
               <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>}
         </View>
+        <View style={styles.removeGoogle}>
+          <Text style={{ color: '#fafafa' }}>FFinder</Text>
+        </View>
       </View >
     );
   }
@@ -213,7 +216,20 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.8)',
-    paddingTop: 22
+    paddingTop: 22,
+    justifyContent: 'center'
+  },
+  removeGoogle: {
+    backgroundColor: '#000',
+    height: 22,
+    width: 58,
+    position: 'absolute',
+    bottom: 0,
+    zIndex: 1000,
+    alignSelf: 'flex-start',
+    marginBottom: 6,
+    marginLeft: 5,
+    alignItems: 'center'
   }
 });
 
