@@ -55,29 +55,63 @@ export default class App extends React.Component {
     let location = await Location.getCurrentPositionAsync({ enableHighAccuracy: true });
     let coords = [location.coords.latitude, location.coords.longitude];
     this.setState({ coords });
+    return {
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude
+    };
   };
 
   modalLoginBtnOnPress = async () => {
     this.setModalVisible(false);
-    const bl = await this.getLocationAsync();
-    const data={
-      userName:this.state.username,
-      loc:{
+    const coords = await this.getLocationAsync();
+    const data = {
+      userName: this.state.username,
+      loc: {
         type: "Point",
-        coordinates:this.state.coords
+        coordinates: [coords.longitude, coords.latitude]
       }
     }
-    fetch(`${process.env.server_uri}/api/friends/register/${this.state.distance}`,
-    {
-        method: "POST",
-        body: data
-    })
-      .then((response) => response.json())
+    let headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+    const request = {
+      headers,
+      method: 'POST',
+      body: JSON.stringify(data)
+    };
+    fetch(`http://192.168.42.139:3000/api/friends/register/${this.state.distance}`,
+      request)
+      .then((response) => {
+        if (response.status < 200 && response.status >= 400)
+          throw new Error("bad request");
+        return response.json();
+      })
       .then((responseJson) => {
-        const markers = responseJson;
-        this.setState({
-          markers
+        let markers = responseJson.map((marker) => {
+          if (marker.loc.coordinates.length === 2) {
+            return {
+              userName: marker.userName,
+              loc: {
+                coordinates: {
+                  latitude: marker.loc.coordinates[1],
+                  longitude: marker.loc.coordinates[0]
+                }
+              },
+              color: '#f0730b' // random orange
+            };
+          }
         });
+        // Add own location
+        markers.push({
+          userName: this.state.username,
+          loc: {
+            coordinates: {
+              latitude: coords.latitude,
+              longitude: coords.longitude
+            }
+          },
+          color: '#663399' // rebeccapurple
+        });
+        this.setState({ markers });
       })
       .catch((error) => {
         console.error(error);
@@ -92,11 +126,12 @@ export default class App extends React.Component {
           region={this.state.region}
           onRegionChange={this.onRegionChange}
           customMapStyle={MapStyle.styles} >
-          {this.state.markers.map(marker => (
+          {this.state.markers.map((marker, idx) => (
             <MapView.Marker
+              key={idx}
               coordinate={marker.loc.coordinates}
               title={marker.userName}
-              description={marker.userName}
+              pinColor={marker.color}
             />
           ))}
         </MapView>
