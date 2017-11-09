@@ -18,6 +18,8 @@ export default class App extends React.Component {
       region: this.getInitialState().region,
       markers: [],
       modalVisible: false,
+      username: "",
+      distance: ""
     };
   }
 
@@ -58,25 +60,20 @@ export default class App extends React.Component {
           ))}
         </MapView>
         <Modal animationType="slide" transparent={true} visible={this.state.modalVisible} onRequestClose={() => { alert("Modal has been closed.") }} >
-          <View style={{
-            flex: 1,
-            backgroundColor: 'rgba(0,0,0,0.8)',
-            paddingTop: 22
-          }}>
+          <View style={styles.overlay}>
             <Text style={{ fontSize: 20, color: '#fafafa', marginBottom: 10 }}>Login</Text>
 
             <Text style={{ color: '#fafafa' }}>Username:</Text>
             <TextInput
-              style={{
-                backgroundColor: '#222',
-                color: '#fafafa',
-                height: 40,
-                borderColor: 'gray',
-                borderWidth: 1,
-                marginBottom: 10
-              }}
+              style={styles.textInput}
               onChangeText={(username) => this.setState({ username })}
               value={this.state.username}
+            />
+            <Text style={{ color: '#fafafa' }}>Distance(in kilometers):</Text>
+            <TextInput
+              style={styles.textInput}
+              onChangeText={(distance) => this.setState({ distance })}
+              value={this.state.distance}
             />
 
             <View style={{ alignItems: 'center' }}>
@@ -127,6 +124,19 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#fafafa"
+  },
+  textInput: {
+    backgroundColor: '#222',
+    color: '#fafafa',
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 10
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    paddingTop: 22
   }
 });
 
