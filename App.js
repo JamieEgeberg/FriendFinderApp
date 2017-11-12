@@ -78,7 +78,7 @@ export default class App extends React.Component {
       method: 'POST',
       body: JSON.stringify(data)
     };
-    fetch(`http://192.168.42.139:3000/api/friends/register/${this.state.distance}`,
+    fetch(`https://api.skaarup.io/api/friends/register/${this.state.distance}`,
       request)
       .then((response) => {
         if (response.status < 200 && response.status >= 400)
